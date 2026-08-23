@@ -1,0 +1,515 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "order-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        -32
+      ],
+      "id": "84597811-cc0d-42fb-9646-52708a3c0e7a",
+      "name": "Webhook",
+      "webhookId": "e0577989-586b-4734-b1e2-c243e2f23a0b"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a2a9e67e-97aa-45c6-ba49-4a43dcd8ef22",
+              "name": "sku",
+              "value": "={{$json.body.sku}}",
+              "type": "string"
+            },
+            {
+              "id": "0db0589c-dd31-4265-816c-406a6d811f5a",
+              "name": "qty_sold",
+              "value": "={{ $json.body.quantity }}",
+              "type": "string"
+            },
+            {
+              "id": "ed2944da-b06e-4ab1-aaa1-827ab2bac2e3",
+              "name": "event_id",
+              "value": "={{ $json.body.id }}",
+              "type": "string"
+            },
+            {
+              "id": "616432d2-9c06-4584-9f81-48cbe5be3e67",
+              "name": "channel_name",
+              "value": "={{ $json.body.source }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -80,
+        -32
+      ],
+      "id": "cd204422-cbd5-4308-a773-ed37ccd7c072",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1_lcl3imwTcrQv8tJIs0RGWEi1iKJL-1naLUHzQP73ZU",
+          "mode": "list",
+          "cachedResultName": "Northstar Inventory Ledger",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_lcl3imwTcrQv8tJIs0RGWEi1iKJL-1naLUHzQP73ZU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_lcl3imwTcrQv8tJIs0RGWEi1iKJL-1naLUHzQP73ZU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "sku",
+              "lookupValue": "={{ $json.sku }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        64,
+        -32
+      ],
+      "id": "db841963-538d-4c87-b4e8-4dc8e69f760e",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jHfmf4s8FKY6fAS9",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "850188d3-2f50-4257-a402-75b481381ffb",
+              "leftValue": "={{ $('Edit Fields').item.json.event_id }}",
+              "rightValue": "={{ $json.last_event_id }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        192,
+        -80
+      ],
+      "id": "887970fe-a1fa-4916-8b57-7ef643207142",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "288da1d0-8126-40c2-b66b-d4ec2f5336d2",
+              "leftValue": "={{ $('Get row(s) in sheet').item.json.available_qty }}",
+              "rightValue": "={{ $('Edit Fields').item.json.qty_sold }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "23357d1e-eb1b-462f-bb86-ca8c5d008fc8",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1_lcl3imwTcrQv8tJIs0RGWEi1iKJL-1naLUHzQP73ZU",
+          "mode": "list",
+          "cachedResultName": "Northstar Inventory Ledger",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_lcl3imwTcrQv8tJIs0RGWEi1iKJL-1naLUHzQP73ZU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_lcl3imwTcrQv8tJIs0RGWEi1iKJL-1naLUHzQP73ZU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sku": "={{ $('Edit Fields').item.json.sku }}",
+            "available_qty": "={{ Number($('Get row(s) in sheet').item.json.available_qty) - Number($('Edit Fields').item.json.qty_sold) }}",
+            "last_event_id": "={{ $('Edit Fields').item.json.event_id }}",
+            "last_synced_at": "={{ $now }}",
+            "row_number": 0,
+            "channel_last_touched": "={{ $('Edit Fields').item.json.channel_name }}"
+          },
+          "matchingColumns": [
+            "sku"
+          ],
+          "schema": [
+            {
+              "id": "sku",
+              "displayName": "sku",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "available_qty",
+              "displayName": "available_qty",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "channel_last_touched",
+              "displayName": "channel_last_touched",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_event_id",
+              "displayName": "last_event_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_synced_at",
+              "displayName": "last_synced_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "337994a1-9624-4ab4-8221-a0f1758a904e",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jHfmf4s8FKY6fAS9",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"duplicate\",\n  \"message\": \"Event already processed, ignored\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        384,
+        -240
+      ],
+      "id": "5710bf00-81a7-4af4-aa55-57ca3cc27ee0",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"rejected\",\n  \"reason\": \"out of stock\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        512,
+        224
+      ],
+      "id": "9cb9b28d-de41-4181-94c8-d6dd700bdffd",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"confirmed\",\n  \"message\": \"Stock updated successfully\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        784,
+        256
+      ],
+      "id": "9ee18aab-6cfa-4426-bd02-938e1027102b",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webhook.site/8b02bcf1-7f16-4c4d-9d82-df054740e1af",
+        "sendBody": true,
+        "specifyBody": "={\n  \"sku\": \"{{ $('Edit Fields').item.json.sku }}\",\n  \"available_qty\": \"{{ $json.available_qty }}\",\n  \"updated_at\": \"{{ $now }}\"\n}",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        768,
+        -96
+      ],
+      "id": "456623d0-4685-450e-b395-e99dea26c500",
+      "name": "Push to Kilimall"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webhook.site/8b02bcf1-7f16-4c4d-9d82-df054740e1af",
+        "sendBody": true,
+        "specifyBody": "={\n  \"sku\": \"{{ $('Edit Fields').item.json.sku }}\",\n  \"available_qty\": \"{{ $json.available_qty }}\",\n  \"updated_at\": \"{{ $now }}\"\n}",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        752,
+        -272
+      ],
+      "id": "a2aa7080-1e07-420b-9bd9-51bc997bb132",
+      "name": "Push to Jumia"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": " https://webhook.site/8b02bcf1-7f16-4c4d-9d82-df054740e1af",
+        "sendBody": true,
+        "specifyBody": "={\n  \"sku\": \"{{ $('Edit Fields').item.json.sku }}\",\n  \"available_qty\": \"{{ $json.available_qty }}\",\n  \"updated_at\": \"{{ $now }}\"\n}",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        784,
+        96
+      ],
+      "id": "aa008779-2d34-4161-8909-309c134f0faa",
+      "name": "Push to Shopify"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Push to Kilimall",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Push to Shopify",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Push to Jumia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook2": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "71487445-311e-4701-b8ae-05055bec3b09",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ad282f8f0bf1eb5f1a9b009e87ab8fc8aad363a1c26d4dfe26dacd3f175f4252"
+  },
+  "nodeGroups": [],
+  "id": "XLlFphmcMKTDPe9G",
+  "tags": []
+}
