@@ -30,6 +30,7 @@ sale of the same last unit instead of letting it oversell.
 ## Contents of this repo
 
 - `workflow.json` — exported n8n workflow (import into n8n to view/run)
+- Learning and blocker journal
 
 
 ## Demonstrated outcomes
